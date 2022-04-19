@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React,{useState,useEffect}from 'react';
-import { StyleSheet, Text, View,Button } from 'react-native';
+import { StyleSheet, Text, View,Button,LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Landing from './components/auth/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Main from './components/Main';
+import Add from './components/main/Add';
 
 // firebase
 import { initializeApp } from 'firebase/app';
@@ -17,6 +18,10 @@ import { Provider } from 'react-redux'
 import { createStore,applyMiddleware } from 'redux';
 import rootReducer from './redux/reducers'
 import thunk from 'redux-thunk'
+import Save from './components/main/Save';
+
+// Firebase sets some timeers for a long period, which will trigger some warnings. Let's turn that off for this example
+LogBox.ignoreLogs([`Setting a timer for a long period`]);
 
 // store
 const store=createStore(rootReducer,applyMiddleware(thunk))
@@ -37,7 +42,7 @@ const Stack=createStackNavigator();
 
 export default function App() {
   const [loaded,setLoaded]=useState(true)
-  const [loading,setloading]=useState(false)
+  const [loggdIn,setloggdIn]=useState(false)
 
   const auth = getAuth();
 
@@ -47,12 +52,12 @@ export default function App() {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
-        setloading(true)
+        setloggdIn(true)
         setLoaded(false)
         // ...
       } else {
         console.log("로그인 안됨")
-        setloading(false)
+        setloggdIn(false)
         setLoaded(false)
       }
     })
@@ -71,9 +76,18 @@ export default function App() {
     )
   }
 
-  return (loading?
+  // LoggIn이 되면 Main으로 들어가는데, 여기서는 tab navigator를 써서 이동가능하게함. 
+  // 아래 페이지를 두고 안에서 이동가능하게 함.
+  // LoggIn이 안되면 Lading page로 들어가서 Register 또는 Login 페이지로 이동가능함.
+  return (loggdIn?
   <Provider store={store}>
-    <Main></Main>
+    <NavigationContainer>
+        <Stack.Navigator initialRouteName="Main">
+          <Stack.Screen name="Main" component={Main} options={{headerShown:false}}></Stack.Screen>
+          <Stack.Screen name="Add" component={Add}></Stack.Screen>
+          <Stack.Screen name="Save" component={Save}></Stack.Screen>
+        </Stack.Navigator>
+    </NavigationContainer>
   </Provider>:
   <NavigationContainer>
       <Stack.Navigator initialRouteName="Landing">
