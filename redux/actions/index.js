@@ -1,4 +1,4 @@
-import { getFirestore,collection, getDoc ,doc } from 'firebase/firestore';
+import { getFirestore, getDoc ,doc } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
 import { USER_STATE_CHANGE } from '../constant';
 

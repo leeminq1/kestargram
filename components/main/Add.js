@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity,Button,Image,Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -10,18 +10,22 @@ import * as ImagePicker from 'expo-image-picker';
 export default function Add({navigation}) {
   const [camerahasPermission, setCameraHasPermission] = useState(null);
   const [galleyhasPermission, setGalleyHasPermission] = useState(null);
-  const [camera,setCamera]=useState(null);
+//   const [camera,setCamera]=useState(null);
   const [image,setImage]=useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
 //   아래이거는 image.picker가 오류나서 StackOverFlow 보고 수정함.
   const [isFocused,setIsFocused]=useState(true)
   
+// 카메라에 접근해서 사진촬영된 image를 불러오기 위해 takePictureAsync를 사용하려면
+// useRef로 접근해야함
+const cameraRef=useRef(null);
 
 //  아래 코드는 카메라를 누르면 카메라를 찍은 것과 동시에 uri 값을 가져오게함
 //  파일 저장은 자동으로 안되는 데 이게 기본 카메라 설정에 따라서 다른건지 api가 그런건지는 모르겠음
+// 아래에서 cameraRef.currnet로 접근함
   const takePicture= async()=>{
-      if(camera){
-        const data=await camera.takePictureAsync(null)
+      if(cameraRef){
+        const data=await cameraRef.current.takePictureAsync(null)
         // console.log(data.uri)
         setImage(data.uri)
     }
@@ -79,7 +83,7 @@ export default function Add({navigation}) {
         <View style={styles.container}>
             <View style={styles.cameraContainer}>
                 <Camera 
-                  ref={(ref)=>{setCamera(ref)}}
+                  ref={cameraRef}
                   style={styles.fixedRatio} 
                   type={type} 
                   ratio={"1:1"}/>

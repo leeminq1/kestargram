@@ -1,16 +1,39 @@
 import React,{useState} from 'react'
-import { View, Text, TextInput,Image,Button,StyleSheet} from 'react-native'
+import { View, Text, TextInput,Image,Button,StyleSheet,ActivityIndicator,TouchableOpacity} from 'react-native'
 import { useRoute } from '@react-navigation/native';
-import { getFirestore,collection, getDoc ,doc } from 'firebase/firestore';
+import { getFirestore,collection,doc,addDoc,serverTimestamp  } from 'firebase/firestore';
 import { getStorage,ref, uploadBytesResumable,getDownloadURL} from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-const Save = () => {
+const Save = ({navigation}) => {
   
  const {params:{image:image_uri}} = useRoute();
  const [caption,setCaption]=useState("");
+ const [saving,setSaving]=useState(false)
+
+
+ const saveFireStore=async(uid,downloadURL)=>{
+    // FireStorage에 업로드 후 FireStore에 저장
+    // 구조는 posts/uid/userPosts/{downloadURL,caption.creation}의 형태로 저장함.
+    const db = await getFirestore();
+    // data 가져오기(db,collection이름,docID,subcollection_name)
+    // data 저장하기 
+    const docRef = await doc(db, "posts", uid);
+    // setDoc 와 add 둘다 저장하는 코드인데, setDoc는 id를 설정하고 add는 자동으로 id생성함
+    const postRef = await addDoc(collection(docRef, "userPosts"), {
+        downloadURL,
+        caption,
+        creation:serverTimestamp()
+      }).then(()=>{
+          console.log("userPost FireStore저장완료!")
+        //  save가 있는 stackNavigator에서 가장 상위인 Main.js로 가서
+        //  Main.js에 있는 bottomNavigator의 inti 값인 Feed.js로 감
+          navigation.popToTop()
+      }).catch((err)=>{ console.log("FiresotreErr",err)}).finally(()=>{setSaving(false)});
+ }
 
  const uploadImage= async ()=>{
+    setSaving(true)
     const response=await fetch(image_uri);
     const blob=await response.blob();
     // uid 불러옴
@@ -53,13 +76,17 @@ const Save = () => {
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           console.log('File available at', downloadURL);
+          saveFireStore(uid,downloadURL);
         });
       }
     );
  }
 
   return (
-    <View style={{flex:1}}>
+    <View style={{flex:1,position:"relative",alignItems:"center"}}>
+      {saving&&<View style={{width:"100%",height:"100%",position:"absolute",zIndex:99,alignSelf:"center",justifyContent:"center"}}>
+            <ActivityIndicator color="purple" size={70}></ActivityIndicator>
+          </View>}
       <View style={{width:"100%",height:300}}>
         <Image style={StyleSheet.absoluteFill} source={{uri:image_uri}}></Image>
       </View>
@@ -70,9 +97,13 @@ const Save = () => {
             setCaption(txt)
         }}
       ></TextInput>
-      <Button title='Save' onPress={()=>{
+      <TouchableOpacity
+        style={{borderRadius:50,width:150,backgroundColor:"skyblue",paddingVertical:10,paddingHorizontal:10}}  
+        onPress={()=>{
           uploadImage();
-      }}></Button>
+      }}>
+          <Text style={{textAlign:"center",fontSize:20,color:"black",fontWeight:"bold"}}>Save Picture</Text>
+      </TouchableOpacity>
     </View>
   )
 }
