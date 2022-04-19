@@ -99,8 +99,12 @@ const Save = ({navigation}) => {
       ></TextInput>
       <TouchableOpacity
         style={{borderRadius:50,width:150,backgroundColor:"skyblue",paddingVertical:10,paddingHorizontal:10}}  
+        // 여러번 클릭하는 것 방지하기 위해 saving 중이면 null 반환
         onPress={()=>{
-          uploadImage();
+          if(!saving){
+            uploadImage();
+          }
+          console.log("저장중! 클릭방지!")
       }}>
           <Text style={{textAlign:"center",fontSize:20,color:"black",fontWeight:"bold"}}>Save Picture</Text>
       </TouchableOpacity>
