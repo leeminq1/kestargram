@@ -17,10 +17,11 @@ const Tab = createMaterialBottomTabNavigator();
 // 한개배운것은 sreen tag내에서 listener 등록하는 방법 !!
 
 const Main = () => {
-  const currentUser= useSelector(state => state.userState.currentUser);
-
+  const {currentUser,posts}= useSelector(state => state.userState);
   const dispatch = useDispatch(); 
+
   useEffect(()=>{
+    // user Id를 currnet id에 넣음
     dispatch(fetchUsers());
   },[])
 
@@ -36,10 +37,10 @@ const Main = () => {
   // }}
   // ></Button>
 
+
   const EmptyScreen=()=>{
     return null;
   }
-
   return (
     <Tab.Navigator initialRouteName='Feed' labeled={false}>
       <Tab.Screen name="Feed" component={Feed} 

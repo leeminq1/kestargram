@@ -20,6 +20,8 @@ const Save = ({navigation}) => {
     // data 저장하기 
     const docRef = await doc(db, "posts", uid);
     // setDoc 와 add 둘다 저장하는 코드인데, setDoc는 id를 설정하고 add는 자동으로 id생성함
+    // 2중 구조에서 저장하기 방법. 아래는 위의 posts (collection) . doc(uid) . userPosts (collection) . doc(랜덤)
+    // 의 구조안에 저장하는 형태
     const postRef = await addDoc(collection(docRef, "userPosts"), {
         downloadURL,
         caption,

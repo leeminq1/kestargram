@@ -1,6 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
 import React,{useState,useEffect}from 'react';
-import { StyleSheet, Text, View,Button,LogBox } from 'react-native';
+import { StyleSheet, Text, View,Button,LogBox,StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Landing from './components/auth/Landing';
@@ -70,9 +69,12 @@ export default function App() {
 
   if (loaded){
     return(
-      <View style={{flex:1,justifyContent:"center"}}>
-        <Text>Loading...</Text>
-     </View>
+      <>
+        <StatusBar></StatusBar>
+        <View style={{flex:1,justifyContent:"center"}}>
+          <Text>Loading...</Text>
+      </View>
+     </>
     )
   }
 
@@ -80,6 +82,8 @@ export default function App() {
   // 아래 페이지를 두고 안에서 이동가능하게 함.
   // LoggIn이 안되면 Lading page로 들어가서 Register 또는 Login 페이지로 이동가능함.
   return (loggdIn?
+  <>
+  <StatusBar></StatusBar>
   <Provider store={store}>
     <NavigationContainer>
         <Stack.Navigator initialRouteName="Main">
@@ -88,7 +92,9 @@ export default function App() {
           <Stack.Screen name="Save" component={Save}></Stack.Screen>
         </Stack.Navigator>
     </NavigationContainer>
-  </Provider>:
+  </Provider>
+  </>:<>
+  <StatusBar></StatusBar>
   <NavigationContainer>
       <Stack.Navigator initialRouteName="Landing">
         <Stack.Screen name="Lading" component={Landing} options={{headerShown:false}}></Stack.Screen>
@@ -96,6 +102,8 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} options={{headerShown:false}}></Stack.Screen>
       </Stack.Navigator>
   </NavigationContainer>
+  </>
+
   );
 }
 
