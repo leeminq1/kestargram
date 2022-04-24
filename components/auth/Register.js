@@ -26,6 +26,7 @@ const Register = () => {
         const userUID=result.user.uid
         //  console.log("result user : ",userUID)
           const docRef = await setDoc(doc(db, "users",userUID), {
+            uid:userUID,
             name,
             email
           });

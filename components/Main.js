@@ -7,6 +7,8 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import Feed from './main/Feed';
 import Profile from './main/Profile';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Search from './main/Search';
+import { getAuth } from "firebase/auth";
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -50,6 +52,13 @@ const Main = () => {
           <MaterialCommunityIcons name="home" size={24} color={color} />
         ),
       }}/>
+        <Tab.Screen name="Search" component={Search} 
+       options={{
+        tabBarLabel: 'Search',
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="account-search" size={24} color={color} />
+        ),
+      }}/>
         <Tab.Screen name="AddContainer" component={EmptyScreen} 
           listeners={({ navigation, route }) => ({
             tabPress: (e) => {
@@ -66,7 +75,17 @@ const Main = () => {
               <MaterialCommunityIcons name="plus-box" size={24} color={color} />
             ),
           }}/>
-        <Tab.Screen name="Profile" component={Profile} 
+        <Tab.Screen name="Profile" component={Profile}
+          listeners={({ navigation, route }) => ({
+                    tabPress: (e) => {
+                      // console.log("Add tab press")
+                      // Prevent default action
+                      e.preventDefault();
+                      // Do something with the `navigation` object
+                      navigation.navigate('Profile',
+                      {uid: getAuth().currentUser.uid});
+                    },
+                  })}
           options={{
             tabBarLabel: 'Profile',
             tabBarIcon: ({ color, size }) => (
