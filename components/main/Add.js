@@ -16,9 +16,9 @@ export default function Add({navigation}) {
 //   아래이거는 image.picker가 오류나서 StackOverFlow 보고 수정함.
   const [isFocused,setIsFocused]=useState(true)
   
-// 카메라에 접근해서 사진촬영된 image를 불러오기 위해 takePictureAsync를 사용하려면
-// useRef로 접근해야함
-const cameraRef=useRef(null);
+  // 카메라에 접근해서 사진촬영된 image를 불러오기 위해 takePictureAsync를 사용하려면
+  // useRef로 접근해야함
+  const cameraRef=useRef(null);
 
 //  아래 코드는 카메라를 누르면 카메라를 찍은 것과 동시에 uri 값을 가져오게함
 //  파일 저장은 자동으로 안되는 데 이게 기본 카메라 설정에 따라서 다른건지 api가 그런건지는 모르겠음

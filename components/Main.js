@@ -33,11 +33,7 @@ const Main = () => {
     )
   }
 
-  // <Button title='Logout'
-  // onPress={async()=>{
-  //     await auth.signOut()
-  // }}
-  // ></Button>
+
 
 
   const EmptyScreen=()=>{

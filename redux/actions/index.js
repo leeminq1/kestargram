@@ -1,6 +1,6 @@
-import { getFirestore,collection, getDocs,getDoc ,doc,query, orderBy} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
-import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE } from '../constant';
+import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE,USER_FOLLOWING_STATE_CHANGE} from '../constant';
 
 // paramsUid는 다른 사람의 id를 클릭해서 profile로 연결할 때 생기는 값
 export const fetchUsers=(paramsUid)=>{
@@ -52,3 +52,31 @@ export const fetchUserPosts=(paramsUid)=>{
         }
     )
 }
+
+
+// paramsUid는 다른 사람의 id를 클릭해서 profile로 연결할 때 생기는 값
+export const fetchUserFollowing=()=>{
+    return(
+        async(dispatch)=>{
+            
+            console.log("Follow Func 실행!")
+            // user정보
+            const auth = await getAuth();
+            const {uid} = auth.currentUser;
+            // FireStore DB
+            const db = await getFirestore();
+            const collectionRef =collection(db, "following", uid,"userFollowing");
+            const querySnapshot = await getDocs(collectionRef);
+            // ID만 가져오게함
+            await onSnapshot(collectionRef,(snapshot)=>{
+                const following=snapshot.docs.map((doc)=>{
+                    console.log("doc의 map")
+                    console.log(doc.id)
+                    return doc.id
+                })
+                dispatch({type: USER_FOLLOWING_STATE_CHANGE,following:following})
+            })
+                
+
+    }
+)}
