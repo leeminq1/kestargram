@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import { View, Text, TextInput,Image,Button,StyleSheet,ActivityIndicator,TouchableOpacity} from 'react-native'
 import { useRoute } from '@react-navigation/native';
-import { getFirestore,collection,doc,addDoc,serverTimestamp  } from 'firebase/firestore';
+import { getFirestore,collection,doc,addDoc,serverTimestamp ,getDoc } from 'firebase/firestore';
 import { getStorage,ref, uploadBytesResumable,getDownloadURL} from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
@@ -16,16 +16,26 @@ const Save = ({navigation}) => {
     // FireStorage에 업로드 후 FireStore에 저장
     // 구조는 posts/uid/userPosts/{downloadURL,caption.creation}의 형태로 저장함.
     const db = await getFirestore();
-    // data 가져오기(db,collection이름,docID,subcollection_name)
-    // data 저장하기 
-    const docRef = await doc(db, "posts", uid);
+    // posts 내에 user의 email / name을 저장하기 위함
+    const docUserRef =  doc(db, "users",uid);
+    const docUserSnap = await getDoc(docUserRef);
+    let user
+    if (docUserSnap.exists()) {
+      user=docUserSnap.data()
+      console.log("save 시 ",user)
+    } else {
+      console.log("user정보가 존재하지 않음")
+    }
     // setDoc 와 add 둘다 저장하는 코드인데, setDoc는 id를 설정하고 add는 자동으로 id생성함
     // 2중 구조에서 저장하기 방법. 아래는 위의 posts (collection) . doc(uid) . userPosts (collection) . doc(랜덤)
     // 의 구조안에 저장하는 형태
-    const postRef = await addDoc(collection(docRef, "userPosts"), {
+    const docPostsRef = await doc(db, "posts", uid);
+    const postRef = await addDoc(collection(docPostsRef, "userPosts"), {
         downloadURL,
         caption,
-        creation:serverTimestamp()
+        creation:serverTimestamp(),
+        userName:user.name,
+        email:user.email,
       }).then(()=>{
           console.log("userPost FireStore저장완료!")
         //  save가 있는 stackNavigator에서 가장 상위인 Main.js로 가서

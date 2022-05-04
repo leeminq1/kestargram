@@ -65,17 +65,6 @@ const Profile = ({route:{params:{uid:paramsUid}}}) => {
     });
 }
 
-
-      // follow btn
-    const FollowBtn=({following})=>{
-      console.log("FollowBtn에서의",following)
-      return(
-        <View>
-
-        </View>
-        )
-     }
-
   // userEffect에서 rednder을 변경하기 위해 paramsUid변경시
   // 새로운 user의 profile이 렌더링 되야 함으로, 배열에 넣어줌
   useEffect(()=>{
@@ -91,6 +80,7 @@ const Profile = ({route:{params:{uid:paramsUid}}}) => {
       dispatch(fetchUsers());
       setCurrentUser(true)
       setLoaindg(false)
+      
 
     }
     // 다른 user의 post를 가져옴
