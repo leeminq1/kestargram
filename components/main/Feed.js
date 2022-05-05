@@ -6,7 +6,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore,collection,doc,setDoc,deleteDoc,addDoc} from 'firebase/firestore';
 
 
-const Feed = () => {
+const Feed = ({navigation}) => {
 
   const dispatch = useDispatch(); 
 
@@ -19,12 +19,10 @@ const Feed = () => {
   const following=useSelector(state => state.userState.following);
 
 
-
-  console.log("users",users)
-
   // 맨처음 
   useEffect(()=>{
-    dispatch(fetchUserFollowing())
+
+
     // 내 follow 되어있는 사람의 수와 user정보가 loaindg된 수가 동일하면 posts로 로딩이 다 되었다는 것을 뜻함
     if(userLoaded===following.length){
       posts.sort((x,y)=>{
@@ -51,6 +49,7 @@ const Feed = () => {
         data={loadedPosts}
         keyExtractor={(item)=>item.downloadURL+""}
         renderItem={({item})=>{
+          // console.log(item)
           return(
             <View style={styles.containerImage}>
               <Text>{item.caption}</Text>
@@ -61,6 +60,10 @@ const Feed = () => {
                 source={{uri:item.downloadURL}}
               >
               </Image>
+              <Text onPress={()=>{navigation.navigate('Comment',{
+                postId:item.postId,
+                followingUid:item.followingUid
+              })}}>View Comments...</Text>
             </View>
           )
         }}

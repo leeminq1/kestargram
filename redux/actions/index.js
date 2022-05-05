@@ -1,6 +1,17 @@
 import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
-import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE,USER_FOLLOWING_STATE_CHANGE,USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE} from '../constant';
+import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE,USER_FOLLOWING_STATE_CHANGE,USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE,CLEAR_DATA} from '../constant';
+
+
+
+
+export const clearData=()=>{
+    return (
+        (dispatch)=>{
+            dispatch({type:CLEAR_DATA})
+        }
+    )
+}
 
 
 // paramsUid는 다른 사람의 id를 클릭해서 profile로 연결할 때 생기는 값
@@ -60,7 +71,7 @@ export const fetchUserFollowing=()=>{
     return(
         async(dispatch)=>{
             
-            console.log("Follow Func 실행!")
+            // console.log("Follow Func 실행!")
             // user정보
             const auth = await getAuth();
             const {uid} = auth.currentUser;
@@ -161,10 +172,18 @@ export const fetchUserFollowingPosts=(followingUid)=>{
             // 해당 followingUid로 되어있는 것을 다 가져오면 결국 following 된 사람들의 posts만
             // 가져올 수 있음
             // const user = getState().usersState.users.find(element => element.uid === followingUid || uid);
-            const posts = querySnapshot.docs.map(doc => ({
-                ...doc.data()
-              }));
-            dispatch({type: USERS_POSTS_STATE_CHANGE,posts:posts,uid:followingUid})
+            
+            // postId는 comment 확인을 위해서 어떤 post인지 알아야 되서 필요하고
+            // data는 Feed에 들어있는 정보이며
+            // uid는 commet를 찾기위해서 갈때 posts --> uid --> userPosts내에 postId로 찾아야 되서필요함
+            const posts = querySnapshot.docs.map(doc => {
+                let postId=doc.id
+                let data=doc.data()
+                return { postId, ...data,followingUid:followingUid }
+            }
+                // {id,...doc.data()}
+              );
+            dispatch({type: USERS_POSTS_STATE_CHANGE,posts:posts,followingUid:followingUid})
             // getState()는 redux내에 있는 모든 state 정보를 가지고 옴
             // console.log(getState())
         }

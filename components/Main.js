@@ -1,7 +1,7 @@
 import { View, Text,Button} from 'react-native'
 import React,{useEffect,useState} from 'react'
 import { useSelector,useDispatch} from 'react-redux'
-import { fetchUsers } from '../redux/actions'
+import { fetchUsers,clearData,fetchUserPosts,fetchUserFollowing } from '../redux/actions'
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Feed from './main/Feed';
@@ -19,12 +19,20 @@ const Tab = createMaterialBottomTabNavigator();
 // 한개배운것은 sreen tag내에서 listener 등록하는 방법 !!
 
 const Main = () => {
-  const {currentUser,posts}= useSelector(state => state.userState);
+  const {currentUser}= useSelector(state => state.userState);
   const dispatch = useDispatch(); 
 
   useEffect(()=>{
-    // user Id를 currnet id에 넣음
+    // redux안에 있는 정보를 reset
+    dispatch(clearData())
+    // user 정보
     dispatch(fetchUsers());
+    // user 정보
+    dispatch(fetchUserPosts());
+
+    // following 되어있는 user들에 대한 정보
+    dispatch(fetchUserFollowing());
+  
   },[])
 
   if(currentUser==undefined){
@@ -32,13 +40,10 @@ const Main = () => {
       <View></View>
     )
   }
-
-
-
-
   const EmptyScreen=()=>{
     return null;
   }
+
   return (
     <Tab.Navigator initialRouteName='Feed' labeled={false}>
       <Tab.Screen name="Feed" component={Feed} 

@@ -1,4 +1,4 @@
-import {USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE} from "../constant"
+import {USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE,CLEAR_DATA} from "../constant"
 
 // 여기서 users는 내가 following 사람들의 user정보
 const initialState={
@@ -20,6 +20,13 @@ export const users =(state=initialState,action)=>{
                 userLoaded: state.userLoaded+1,
                 feed: [...state.feed, ...action.posts]
             }
+        case CLEAR_DATA:
+            return {
+                users:[],
+                userLoaded:0,
+                feed: [],
+            }
+            
         default:
             return state;
         }

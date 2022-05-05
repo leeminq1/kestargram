@@ -7,6 +7,7 @@ import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Main from './components/Main';
 import Add from './components/main/Add';
+import Comment from './components/main/Comment';
 
 // firebase
 import { initializeApp } from 'firebase/app';
@@ -90,6 +91,7 @@ export default function App() {
           <Stack.Screen name="Main" component={Main} options={{headerShown:false}}></Stack.Screen>
           <Stack.Screen name="Add" component={Add}></Stack.Screen>
           <Stack.Screen name="Save" component={Save}></Stack.Screen>
+          <Stack.Screen name="Comment" component={Comment}></Stack.Screen>
         </Stack.Navigator>
     </NavigationContainer>
   </Provider>
