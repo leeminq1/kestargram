@@ -1,6 +1,6 @@
 import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
-import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE,USER_FOLLOWING_STATE_CHANGE,USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE,CLEAR_DATA} from '../constant';
+import { USER_STATE_CHANGE,USER_POSTS_STATE_CHANGE,USER_FOLLOWING_STATE_CHANGE,USERS_DATA_STATE_CHANGE,USERS_POSTS_STATE_CHANGE,CLEAR_DATA,USERS_LIKES_STATE_CHANGE} from '../constant';
 
 
 
@@ -78,7 +78,7 @@ export const fetchUserFollowing=()=>{
             // FireStore DB
             const db = await getFirestore();
             const collectionRef =collection(db, "following", uid,"userFollowing");
-            const querySnapshot = await getDocs(collectionRef);
+            // const querySnapshot = await getDocs(collectionRef);
             // ID만 가져오게함
             await onSnapshot(collectionRef,(snapshot)=>{
                 const following=snapshot.docs.map((doc)=>{
@@ -180,12 +180,47 @@ export const fetchUserFollowingPosts=(followingUid)=>{
                 let postId=doc.id
                 let data=doc.data()
                 return { postId, ...data,followingUid:followingUid }
+            });
+            // 사람들이 올린 모든 posts 에서 내가 좋아요를 했는 지 안했는 지 정보를 가져오기 위함
+            // 여기서 followingUid는 post -> followingUid -> usePosts 할 때 사용하기 위함
+            for (let i=0; i<posts.length; i++ ){
+                dispatch(fetchUserFollowingLikes(followingUid,posts[i].postId))
             }
-                // {id,...doc.data()}
-              );
-            dispatch({type: USERS_POSTS_STATE_CHANGE,posts:posts,followingUid:followingUid})
+
+            dispatch({type: USERS_POSTS_STATE_CHANGE,posts:posts})
             // getState()는 redux내에 있는 모든 state 정보를 가지고 옴
             // console.log(getState())
+        }
+    )
+}
+
+// likes를 가져옴
+export const fetchUserFollowingLikes=(followingUid,postId)=>{
+    return(
+        async(dispatch,getState)=>{
+            // user정보
+            const auth = await getAuth();
+            const {uid} = auth.currentUser;
+            // FireStore DB
+            const db = await getFirestore();
+
+            // likes collection 안에 사용자의 uid가 들어있으면 내가 좋아요를 눌렀던 글이다.
+            const collectionRef = await collection(db, "posts", followingUid?followingUid:uid,"userPosts",postId,"likes");
+            // collection으로 끝난 다음에 doc ("colleciton", 문서 id) 안에 문서 id를 넣으면 특정한 id의 문서를 찾을 수있다.
+            const docRef = doc(collectionRef,uid);
+            const docSnap = await getDoc(docRef);
+
+            let currentUserLike=false;
+            if (docSnap.exists()) {
+                console.log("likes 존재")
+                currentUserLike=true
+            } else {
+                // doc.data() will be undefined in this case
+                console.log("likes 존재하지 않음")
+            }
+
+            dispatch({type: USERS_LIKES_STATE_CHANGE,postId:postId,currentUserLike,currentUserLike})
+
         }
     )
 }

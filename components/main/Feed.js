@@ -24,7 +24,7 @@ const Feed = ({navigation}) => {
 
 
     // 내 follow 되어있는 사람의 수와 user정보가 loaindg된 수가 동일하면 posts로 로딩이 다 되었다는 것을 뜻함
-    if(userLoaded===following.length){
+    if(userLoaded===following.length && following.length!==0){
       posts.sort((x,y)=>{
         return(
           x.creation.toDate() - y.creation.toDate()
@@ -34,7 +34,7 @@ const Feed = ({navigation}) => {
       setLoaindg(false)
     }
     
-  },[userLoaded])
+  },[userLoaded,posts])
 
   return (
     <View style={styles.container}>
