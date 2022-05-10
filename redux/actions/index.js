@@ -175,18 +175,20 @@ export const fetchUserFollowingPosts=(followingUid)=>{
             
             // postId는 comment 확인을 위해서 어떤 post인지 알아야 되서 필요하고
             // data는 Feed에 들어있는 정보이며
-            // uid는 commet를 찾기위해서 갈때 posts --> uid --> userPosts내에 postId로 찾아야 되서필요함
+            // followingUid commet를 찾기위해서 갈때 posts --> uid --> userPosts내에 postId로 찾아야 되서필요함
             const posts = querySnapshot.docs.map(doc => {
                 let postId=doc.id
                 let data=doc.data()
                 return { postId, ...data,followingUid:followingUid }
             });
+
+            console.log("fetchUserFollowingPosts",posts)
             // 사람들이 올린 모든 posts 에서 내가 좋아요를 했는 지 안했는 지 정보를 가져오기 위함
             // 여기서 followingUid는 post -> followingUid -> usePosts 할 때 사용하기 위함
             for (let i=0; i<posts.length; i++ ){
                 dispatch(fetchUserFollowingLikes(followingUid,posts[i].postId))
             }
-
+            
             dispatch({type: USERS_POSTS_STATE_CHANGE,posts:posts})
             // getState()는 redux내에 있는 모든 state 정보를 가지고 옴
             // console.log(getState())
@@ -219,7 +221,7 @@ export const fetchUserFollowingLikes=(followingUid,postId)=>{
                 console.log("likes 존재하지 않음")
             }
 
-            dispatch({type: USERS_LIKES_STATE_CHANGE,postId:postId,currentUserLike,currentUserLike})
+            dispatch({type: USERS_LIKES_STATE_CHANGE,postId:postId,currentUserLike:currentUserLike})
 
         }
     )

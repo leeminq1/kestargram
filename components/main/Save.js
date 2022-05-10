@@ -36,6 +36,7 @@ const Save = ({navigation}) => {
         creation:serverTimestamp(),
         userName:user.name,
         email:user.email,
+        likeCount:0
       }).then(()=>{
           console.log("userPost FireStore저장완료!")
         //  save가 있는 stackNavigator에서 가장 상위인 Main.js로 가서

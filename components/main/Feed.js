@@ -1,9 +1,9 @@
 import React,{useEffect,useState} from 'react'
 import {StyleSheet,View, Text,Image,FlatList,Button,ActivityIndicator} from 'react-native'
 import { useSelector,useDispatch} from 'react-redux'
-import { fetchUserPosts,fetchUsers,fetchUserFollowing} from '../../redux/actions';
+import { fetchUserPosts,fetchUsers,fetchUserFollowing,fetchUserFollowingLikes,fetchUserFollowingPosts} from '../../redux/actions';
 import { getAuth } from "firebase/auth";
-import { getFirestore,collection,doc,setDoc,deleteDoc,addDoc} from 'firebase/firestore';
+import { getFirestore,collection,doc,setDoc,deleteDoc,addDoc,runTransaction } from 'firebase/firestore';
 
 
 const Feed = ({navigation}) => {
@@ -19,10 +19,67 @@ const Feed = ({navigation}) => {
   const following=useSelector(state => state.userState.following);
 
 
+  const onLikePress=async(followingUid,postId)=>{
+
+    const auth = await getAuth();
+    const {uid} = auth.currentUser;
+    // FireStore DB
+    const db = await getFirestore();
+    // likes collection 안에 사용자의 uid가 들어있으면 내가 좋아요를 눌렀던 글이다.
+    const collectionRef = await collection(db, "posts", followingUid,"userPosts",postId,"likes");
+    // likeCount 변경 
+    // 트랜잭션 외부에서 정보전달 
+    // https://firebase.google.com/docs/firestore/manage-data/transactions?hl=ko#web-version-9_1
+    const likeCollectionRef=await collection(db, "posts", followingUid,"userPosts")
+    const likeDocRef = doc(likeCollectionRef,postId);
+    await runTransaction(db, async (transaction) => {
+        const sfDoc = await transaction.get(likeDocRef);
+        if (!sfDoc.exists()) {
+          throw "Document does not exist!";
+        }
+        const newlikeCount = sfDoc.data().likeCount + 1;
+        transaction.update(likeDocRef, { likeCount: newlikeCount });
+      });
+
+    // setDoc 사용할 때 뒤에 doc () 써줘야함
+    const postRef = await setDoc(doc(collectionRef,uid), {}).then(()=>{
+          console.log("likes FireStore저장완료!")
+      }).catch((err)=>{ console.log("FiresotreErr",err)}).finally(()=>{
+        // 삭제한 다음에 다시 받아오기 위해서 dispatch를 사용함
+        dispatch(fetchUserFollowingLikes(followingUid,postId))
+      });
+  }
+
+  const onDisLikePress=async(followingUid,postId)=>{
+
+    const auth = await getAuth();
+    const {uid} = auth.currentUser;
+    // FireStore DB
+    const db = await getFirestore();
+
+    // likes collection 안에 사용자의 uid가 들어있으면 내가 좋아요를 눌렀던 글이다.
+    const collectionRef = await collection(db, "posts", followingUid,"userPosts",postId,"likes");
+    // likeCount 변경 
+    const likeCollectionRef=await collection(db, "posts", followingUid,"userPosts")
+    const likeDocRef = doc(likeCollectionRef,postId);
+    await runTransaction(db, async (transaction) => {
+        const sfDoc = await transaction.get(likeDocRef);
+        if (!sfDoc.exists()) {
+          throw "Document does not exist!";
+        }
+        const newlikeCount = sfDoc.data().likeCount - 1;
+        transaction.update(likeDocRef, { likeCount: newlikeCount });
+      });
+    // const docRef=await getDocs(q);
+    const postRef = await deleteDoc(doc(collectionRef,uid), {}).then(()=>{
+          console.log("likes FireStore 삭제완료!")
+      }).catch((err)=>{ console.log("FiresotreErr",err)}).finally(()=>{
+        dispatch(fetchUserFollowingLikes(followingUid,postId))
+      });
+  }
+
   // 맨처음 
   useEffect(()=>{
-
-
     // 내 follow 되어있는 사람의 수와 user정보가 loaindg된 수가 동일하면 posts로 로딩이 다 되었다는 것을 뜻함
     if(userLoaded===following.length && following.length!==0){
       posts.sort((x,y)=>{
@@ -60,6 +117,15 @@ const Feed = ({navigation}) => {
                 source={{uri:item.downloadURL}}
               >
               </Image>
+              {item.currentUserLike?
+              <Button title='Dislike'
+                 onPress={()=>{onDisLikePress(item.followingUid,item.postId)}}
+              ></Button>:
+              <Button title='Like'
+                 onPress={()=>{onLikePress(item.followingUid,item.postId)}}
+              ></Button>
+            }
+              <Text>LikeCount : {item.likeCount}</Text>
               <Text onPress={()=>{navigation.navigate('Comment',{
                 postId:item.postId,
                 followingUid:item.followingUid

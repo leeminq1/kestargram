@@ -21,7 +21,7 @@ import thunk from 'redux-thunk'
 import Save from './components/main/Save';
 
 // Firebase sets some timeers for a long period, which will trigger some warnings. Let's turn that off for this example
-LogBox.ignoreLogs([`Setting a timer for a long period`]);
+LogBox.ignoreLogs([`Setting a timer for a long period`,'AsyncStorage has been extracted from react-native core and will be removed']);
 
 // store
 const store=createStore(rootReducer,applyMiddleware(thunk))

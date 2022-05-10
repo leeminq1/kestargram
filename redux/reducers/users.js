@@ -26,7 +26,7 @@ export const users =(state=initialState,action)=>{
             return{
                 ...state,
                 feed : state.feed.map((post)=>
-                    (post.id == action.postId ? 
+                    (post.postId == action.postId ? 
                         {...post,currentUserLike:action.currentUserLike}:
                         {...post})
                 )
