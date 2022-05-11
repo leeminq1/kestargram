@@ -22,7 +22,7 @@ const Save = ({navigation}) => {
     let user
     if (docUserSnap.exists()) {
       user=docUserSnap.data()
-      console.log("save 시 ",user)
+      // console.log("save 시 ",user)
     } else {
       console.log("user정보가 존재하지 않음")
     }
@@ -39,10 +39,16 @@ const Save = ({navigation}) => {
         likeCount:0
       }).then(()=>{
           console.log("userPost FireStore저장완료!")
-        //  save가 있는 stackNavigator에서 가장 상위인 Main.js로 가서
-        //  Main.js에 있는 bottomNavigator의 inti 값인 Feed.js로 감
-          navigation.popToTop()
-      }).catch((err)=>{ console.log("FiresotreErr",err)}).finally(()=>{setSaving(false)});
+
+          // save 후에 사용자의 post가 업데이트 되기 위해서 Main --> Profile로 보내는데
+          // 이 때 useEffect는 paramsUid가 변경되어야만 실행된다. 
+          // 일부러 undefined를 보내주고 undefiend일때 에도 실행되게 한다.
+        navigation.replace("Main",{screen:"Profile",params:{uid:undefined}})
+          
+      }).catch((err)=>{ console.log("FiresotreErr",err)}).finally(()=>{
+        setSaving(false)
+        
+      });
  }
 
  const uploadImage= async ()=>{

@@ -23,6 +23,7 @@ const Main = () => {
   const dispatch = useDispatch(); 
 
   useEffect(()=>{
+    console.log("Main으로이동")
     // redux안에 있는 정보를 reset
     dispatch(clearData())
     // user 정보

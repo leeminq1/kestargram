@@ -67,13 +67,13 @@ const Profile = ({route:{params:{uid:paramsUid}}}) => {
 
   // userEffect에서 rednder을 변경하기 위해 paramsUid변경시
   // 새로운 user의 profile이 렌더링 되야 함으로, 배열에 넣어줌
-  useEffect(()=>{
+  useEffect(async()=>{
     // following 정보받아옴
-
     // 기존의 fechUserPosts를 사용하기 위해서 함수를 변경해줌
     // 계정 당사자가 proflie 클릭하는 경우
     // 위에서의 1번의 경우
-    if(paramsUid==getAuth().currentUser.uid){
+    // save 한 후에 pramsUid를 일부로 undefined로 보내주어서 다시 렌더링 하게 함
+    if(paramsUid==await getAuth().currentUser.uid ||paramsUid==undefined){
       // user가 올린 posts를 받아옴
       console.log("user Profle")
       dispatch(fetchUserPosts());
@@ -128,7 +128,7 @@ const Profile = ({route:{params:{uid:paramsUid}}}) => {
             title='LogOut'
             style={styles.btn}
             onPress={async()=>{
-          await auth.signOut()
+          await getAuth().signOut()
           }}></Button>
       </View>
       </View>
